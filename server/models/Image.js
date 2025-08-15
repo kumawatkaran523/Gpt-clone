@@ -3,8 +3,13 @@ import mongoose from "mongoose";
 const ImageSchema = new mongoose.Schema(
   {
     name: { type: String, required: true },
-    path: { type: String, required: true },
-    folder: { type: mongoose.Schema.Types.ObjectId, ref: "Folder" },
+    url: { type: String, required: true }, 
+    public_id: { type: String, required: true }, 
+    folder: {
+      type: mongoose.Schema.Types.ObjectId,
+      ref: "Folder",
+      default: null,
+    },
     owner: {
       type: mongoose.Schema.Types.ObjectId,
       ref: "User",
