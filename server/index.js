@@ -4,7 +4,7 @@ import cors from 'cors';
 import dotenv from 'dotenv';
 import authRoutes from './routes/auth.js';
 import folderRoutes from './routes/folders.js';
-// import imageRoutes from './routes/images.js';
+import imageRoutes from './routes/images.js';
 
 dotenv.config();
 
@@ -19,7 +19,7 @@ app.use('/uploads', express.static('uploads'));
 
 app.use('/api/auth', authRoutes);
 app.use('/api/folders', folderRoutes);
-// app.use('/api/images', imageRoutes);
+app.use('/api/images', imageRoutes);
 
 
 const PORT = process.env.PORT || 5000;
