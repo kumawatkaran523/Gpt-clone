@@ -1,22 +1,47 @@
-import mongoose from "mongoose";
+const mongoose = require("mongoose");
 
-const ImageSchema = new mongoose.Schema(
+const imageSchema = new mongoose.Schema(
   {
-    name: { type: String, required: true },
-    url: { type: String, required: true }, 
-    public_id: { type: String, required: true }, 
+    name: {
+      type: String,
+      required: [true, "Image name is required"],
+      trim: true,
+      maxlength: [100, "Image name cannot exceed 100 characters"],
+    },
+    cloudinaryUrl: {
+      type: String,
+      required: [true, "Image URL is required"],
+    },
+    cloudinaryPublicId: {
+      type: String,
+      required: [true, "Cloudinary public ID is required"],
+    },
     folder: {
       type: mongoose.Schema.Types.ObjectId,
       ref: "Folder",
-      default: null,
+      required: [true, "Images must be in a folder"],
     },
     owner: {
       type: mongoose.Schema.Types.ObjectId,
       ref: "User",
       required: true,
     },
+    size: {
+      type: Number,
+      required: true,
+    },
+    mimetype: {
+      type: String,
+      required: true,
+    },
   },
-  { timestamps: true }
+  {
+    timestamps: true,
+  }
 );
 
-export default mongoose.model("Image", ImageSchema);
+// Create compound indexes for better query performance
+imageSchema.index({ owner: 1, folder: 1 });
+imageSchema.index({ owner: 1, name: "text" });
+
+module.exports = mongoose.model("Image", imageSchema);
