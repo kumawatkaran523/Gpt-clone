@@ -184,32 +184,6 @@ const Navbar = ({
 
           {/* Right side controls */}
           <div className="flex items-center space-x-4">
-            {/* View Mode Toggle */}
-            <div className="hidden md:flex items-center space-x-1 bg-gray-100 rounded-md p-1">
-              <button
-                onClick={() => onViewModeChange("grid")}
-                className={`p-1.5 rounded transition-colors ${
-                  viewMode === "grid"
-                    ? "bg-white shadow-sm"
-                    : "text-gray-600 hover:text-gray-900"
-                }`}
-                title="Grid view"
-              >
-                <Grid className="h-4 w-4" />
-              </button>
-              <button
-                onClick={() => onViewModeChange("list")}
-                className={`p-1.5 rounded transition-colors ${
-                  viewMode === "list"
-                    ? "bg-white shadow-sm"
-                    : "text-gray-600 hover:text-gray-900"
-                }`}
-                title="List view"
-              >
-                <List className="h-4 w-4" />
-              </button>
-            </div>
-
             {/* User Menu */}
             <div className="relative user-menu">
               <button

@@ -6,8 +6,10 @@ import {
   Plus,
   Trash2,
   MoreHorizontal,
+  Eye,
 } from "lucide-react";
 import { useState, useRef, useEffect } from "react";
+import ImageModal from "./ImageModal"; // You'll need to create this component
 
 const FolderContent = ({
   currentFolder,
@@ -26,7 +28,9 @@ const FolderContent = ({
   loading,
 }) => {
   const [showActionMenu, setShowActionMenu] = useState(null);
+  const [selectedImage, setSelectedImage] = useState(null);
   const actionMenuRef = useRef(null);
+
   useEffect(() => {
     const handleClickOutside = (event) => {
       if (
@@ -67,13 +71,29 @@ const FolderContent = ({
       )
     ) {
       onDeleteFolder(folderId);
-      setShowActionMenu(null); // Close menu after deletion
+      setShowActionMenu(null);
     }
   };
-  const toggleActionMenu = (folderId, e) => {
+
+  const handleDeleteImage = (imageId, e) => {
     e.stopPropagation();
-    setShowActionMenu(showActionMenu === folderId ? null : folderId);
+    if (window.confirm("Are you sure you want to delete this image?")) {
+      onDeleteImage(imageId);
+      setShowActionMenu(null);
+    }
   };
+
+  const toggleActionMenu = (id, type, e) => {
+    e.stopPropagation();
+    const itemId = `${type}-${id}`;
+    setShowActionMenu(showActionMenu === itemId ? null : itemId);
+  };
+
+  const handleImagePreview = (image, e) => {
+    e.stopPropagation();
+    setSelectedImage(image);
+  };
+
   return (
     <div className="py-6 space-y-6">
       {/* Breadcrumb Navigation */}
@@ -134,7 +154,6 @@ const FolderContent = ({
       {/* Content Area */}
       <div className="space-y-6">
         {loading ? (
-          // Loading state
           <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4">
             {[...Array(8)].map((_, i) => (
               <div key={i} className="animate-pulse">
@@ -144,7 +163,6 @@ const FolderContent = ({
             ))}
           </div>
         ) : folders.length === 0 && images.length === 0 ? (
-          // Empty state
           <div className="text-center py-12 border border-gray-200 rounded-lg">
             <Folder className="h-12 w-12 text-gray-400 mx-auto mb-4" />
             <h3 className="text-lg font-medium text-gray-900 mb-2">
@@ -173,9 +191,7 @@ const FolderContent = ({
             </div>
           </div>
         ) : (
-          // Content display
           <div className="space-y-6">
-            {/* Folders section */}
             {folders.length > 0 && (
               <div>
                 <h3 className="text-sm font-medium text-gray-500 uppercase tracking-wider mb-3">
@@ -201,11 +217,13 @@ const FolderContent = ({
                       </div>
                       <button
                         className="absolute top-2 right-2 p-1 rounded-full opacity-0 group-hover:opacity-100 hover:bg-gray-100 transition-opacity"
-                        onClick={(e) => toggleActionMenu(folder._id, e)}
+                        onClick={(e) =>
+                          toggleActionMenu(folder._id, "folder", e)
+                        }
                       >
                         <MoreHorizontal className="h-4 w-4 text-gray-500" />
                       </button>
-                      {showActionMenu === folder._id && (
+                      {showActionMenu === `folder-${folder._id}` && (
                         <div
                           ref={actionMenuRef}
                           className="absolute top-8 right-2 bg-white rounded-md shadow-lg border border-gray-200 z-10"
@@ -225,7 +243,6 @@ const FolderContent = ({
               </div>
             )}
 
-            {/* Images section */}
             {images.length > 0 && (
               <div>
                 <h3 className="text-sm font-medium text-gray-500 uppercase tracking-wider mb-3">
@@ -236,13 +253,13 @@ const FolderContent = ({
                     <div
                       key={image._id}
                       className="group relative border border-gray-200 rounded-md overflow-hidden hover:border-gray-300"
-                      onClick={() => onImageClick(image)}
                     >
                       <div className="aspect-square bg-gray-100">
                         <img
                           src={image.cloudinaryUrl}
                           alt={image.name}
-                          className="w-full h-full object-cover"
+                          className="w-full h-full object-cover cursor-pointer"
+                          onClick={() => setSelectedImage(image)}
                           loading="lazy"
                         />
                       </div>
@@ -257,6 +274,36 @@ const FolderContent = ({
                           </span>
                         </div>
                       </div>
+                      <div className="absolute top-2 right-2 flex space-x-1 opacity-0 group-hover:opacity-100 transition-opacity">
+                        <button
+                          className="p-1.5 bg-white/80 rounded hover:bg-white"
+                          onClick={(e) => handleImagePreview(image, e)}
+                        >
+                          <Eye className="h-4 w-4 text-gray-700" />
+                        </button>
+                        <button
+                          className="p-1.5 bg-white/80 rounded hover:bg-white"
+                          onClick={(e) =>
+                            toggleActionMenu(image._id, "image", e)
+                          }
+                        >
+                          <MoreHorizontal className="h-4 w-4 text-gray-700" />
+                        </button>
+                      </div>
+                      {showActionMenu === `image-${image._id}` && (
+                        <div
+                          ref={actionMenuRef}
+                          className="absolute top-10 right-2 bg-white rounded-md shadow-lg border border-gray-200 z-10"
+                        >
+                          <button
+                            className="flex items-center space-x-2 w-full px-3 py-2 text-sm text-red-600 hover:bg-red-50"
+                            onClick={(e) => handleDeleteImage(image._id, e)}
+                          >
+                            <Trash2 className="h-4 w-4" />
+                            <span>Delete</span>
+                          </button>
+                        </div>
+                      )}
                     </div>
                   ))}
                 </div>
@@ -265,6 +312,18 @@ const FolderContent = ({
           </div>
         )}
       </div>
+
+      {/* Image Preview Modal */}
+      {selectedImage && (
+        <ImageModal
+          image={selectedImage}
+          onClose={() => setSelectedImage(null)}
+          onDelete={(id) => {
+            onDeleteImage(id);
+            setSelectedImage(null);
+          }}
+        />
+      )}
     </div>
   );
 };
