@@ -40,7 +40,6 @@ const imageSchema = new mongoose.Schema(
   }
 );
 
-// Create compound indexes for better query performance
 imageSchema.index({ owner: 1, folder: 1 });
 imageSchema.index({ owner: 1, name: "text" });
 

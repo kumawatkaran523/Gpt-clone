@@ -10,7 +10,6 @@ const {
 
 const router = express.Router();
 
-// Configure multer for memory storage
 const upload = multer({
   storage: multer.memoryStorage(),
   limits: {
@@ -40,11 +39,9 @@ router.get("/", auth, async (req, res) => {
   try {
     const { folder } = req.query;
 
-    // If no folder is specified, get images not in any folder (root level)
     let query = { owner: req.user._id };
     
     if (folder) {
-      // Verify folder exists and belongs to user if folder ID is provided
       const folderDoc = await Folder.findOne({
         _id: folder,
         owner: req.user._id,
@@ -55,7 +52,6 @@ router.get("/", auth, async (req, res) => {
       }
       query.folder = folder;
     } else {
-      // Get images with no folder (root level)
       query.folder = { $exists: false };
     }
 
@@ -85,7 +81,7 @@ router.get("/search", auth, async (req, res) => {
     })
       .sort({ name: 1 })
       .populate("folder", "name path")
-      .limit(50); // Limit results for performance
+      .limit(50); 
 
     res.json(images);
   } catch (error) {
@@ -111,7 +107,6 @@ router.post("/upload", auth, upload.single("image"), async (req, res) => {
       return res.status(400).json({ message: "Image file is required" });
     }
 
-    // Verify folder exists and belongs to user
     const folder = await Folder.findOne({
       _id: folderId,
       owner: req.user._id,
@@ -121,7 +116,6 @@ router.post("/upload", auth, upload.single("image"), async (req, res) => {
       return res.status(404).json({ message: "Folder not found" });
     }
 
-    // Check if image with same name exists in the folder
     const existingImage = await Image.findOne({
       owner: req.user._id,
       folder: folderId,
@@ -135,7 +129,6 @@ router.post("/upload", auth, upload.single("image"), async (req, res) => {
     }
 
     try {
-      // Upload to Cloudinary
       const result = await uploadToCloudinary(req.file.buffer, {
         folder: `users/${req.user._id}/images`,
         public_id: `${folderId}_${Date.now()}_${name
@@ -143,7 +136,6 @@ router.post("/upload", auth, upload.single("image"), async (req, res) => {
           .replace(/[^a-zA-Z0-9]/g, "_")}`,
       });
 
-      // Save to database
       const image = new Image({
         name: name.trim(),
         cloudinaryUrl: result.secure_url,
@@ -195,7 +187,6 @@ router.put("/:id", auth, async (req, res) => {
       return res.status(404).json({ message: "Image not found" });
     }
 
-    // Check if image with same name exists in the same folder
     const existingImage = await Image.findOne({
       owner: req.user._id,
       folder: image.folder,
@@ -232,14 +223,11 @@ router.delete("/:id", auth, async (req, res) => {
     }
 
     try {
-      // Delete from Cloudinary
       await deleteFromCloudinary(image.cloudinaryPublicId);
     } catch (cloudinaryError) {
       console.error("Cloudinary delete error:", cloudinaryError);
-      // Continue with database deletion even if Cloudinary fails
     }
 
-    // Delete from database
     await Image.findByIdAndDelete(image._id);
 
     res.json({ message: "Image deleted successfully" });

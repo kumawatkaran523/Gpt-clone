@@ -5,17 +5,14 @@ const auth = require("../middleware/auth");
 
 const router = express.Router();
 
-// Sign up
 router.post("/signup", async (req, res) => {
   try {
     const { name, email, password } = req.body;
 
-    // Validate required fields
     if (!name || !email || !password) {
       return res.status(400).json({ message: "All fields are required" });
     }
 
-    // Check if user already exists
     const existingUser = await User.findOne({
       $or: [{ email }, { name }],
     });
@@ -29,11 +26,9 @@ router.post("/signup", async (req, res) => {
       });
     }
 
-    // Create new user
     const user = new User({ name, email, password });
     await user.save();
 
-    // Generate token
     const token = jwt.sign({ userId: user._id }, process.env.JWT_SECRET, {
       expiresIn: process.env.JWT_EXPIRES_IN,
     });
@@ -57,31 +52,26 @@ router.post("/signup", async (req, res) => {
   }
 });
 
-// Login
 router.post("/login", async (req, res) => {
   try {
     const { email, password } = req.body;
 
-    // Validate required fields
     if (!email || !password) {
       return res
         .status(400)
         .json({ message: "Email and password are required" });
     }
 
-    // Find user
     const user = await User.findOne({ email });
     if (!user) {
       return res.status(401).json({ message: "Invalid credentials" });
     }
 
-    // Check password
     const isMatch = await user.comparePassword(password);
     if (!isMatch) {
       return res.status(401).json({ message: "Invalid credentials" });
     }
 
-    // Generate token
     const token = jwt.sign({ userId: user._id }, process.env.JWT_SECRET, {
       expiresIn: process.env.JWT_EXPIRES_IN,
     });
@@ -101,7 +91,6 @@ router.post("/login", async (req, res) => {
   }
 });
 
-// Get current user
 router.get("/me", auth, async (req, res) => {
   try {
     res.json({

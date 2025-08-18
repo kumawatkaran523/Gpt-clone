@@ -74,7 +74,6 @@ router.post("/", auth, async (req, res) => {
       return res.status(400).json({ message: "Folder name is required" });
     }
 
-    // Check if folder with same name exists in the same parent
     const existingFolder = await Folder.findOne({
       owner: req.user._id,
       name: name.trim(),
@@ -87,7 +86,6 @@ router.post("/", auth, async (req, res) => {
         .json({ message: "Folder with this name already exists" });
     }
 
-    // If parent is specified, verify it exists and belongs to user
     if (parent) {
       const parentFolder = await Folder.findOne({
         _id: parent,
@@ -137,7 +135,6 @@ router.put("/:id", auth, async (req, res) => {
       return res.status(404).json({ message: "Folder not found" });
     }
 
-    // Check if folder with same name exists in the same parent
     const existingFolder = await Folder.findOne({
       owner: req.user._id,
       name: name.trim(),
@@ -162,7 +159,6 @@ router.put("/:id", auth, async (req, res) => {
   }
 });
 
-// Delete folder
 router.delete("/:id", auth, async (req, res) => {
   try {
     const folder = await Folder.findOne({
@@ -174,17 +170,14 @@ router.delete("/:id", auth, async (req, res) => {
       return res.status(404).json({ message: "Folder not found" });
     }
 
-    // Get all descendant folders
     const descendantFolders = await getDescendantFolders(
       folder._id,
       req.user._id
     );
     const folderIds = [folder._id, ...descendantFolders.map((f) => f._id)];
 
-    // Get all images in these folders
     const images = await Image.find({ folder: { $in: folderIds } });
 
-    // Delete images from Cloudinary
     const deletePromises = images.map((image) =>
       deleteFromCloudinary(image.cloudinaryPublicId).catch((err) =>
         console.error("Failed to delete from Cloudinary:", err)
@@ -193,10 +186,8 @@ router.delete("/:id", auth, async (req, res) => {
 
     await Promise.allSettled(deletePromises);
 
-    // Delete images from database
     await Image.deleteMany({ folder: { $in: folderIds } });
 
-    // Delete folders
     await Folder.deleteMany({ _id: { $in: folderIds } });
 
     res.json({ message: "Folder and all contents deleted successfully" });

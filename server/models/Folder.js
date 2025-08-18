@@ -27,12 +27,9 @@ const folderSchema = new mongoose.Schema(
     timestamps: true,
   }
 );
-
-// Create compound index for better query performance
 folderSchema.index({ owner: 1, parent: 1 });
 folderSchema.index({ owner: 1, name: 1, parent: 1 }, { unique: true });
 
-// Pre-save middleware to update path
 folderSchema.pre("save", async function (next) {
   if (this.isNew || this.isModified("parent") || this.isModified("name")) {
     try {
