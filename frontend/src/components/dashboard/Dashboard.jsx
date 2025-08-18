@@ -23,7 +23,6 @@ const Dashboard = () => {
   const [isSearching, setIsSearching] = useState(false);
   const [viewMode, setViewMode] = useState("grid");
 
-  // Load folders for current directory
   const loadFolders = async (parentId = null) => {
     try {
       setLoading(true);
@@ -40,7 +39,6 @@ const Dashboard = () => {
     }
   };
 
-  // Load images for current folder
   const loadImages = async (folderId) => {
     try {
       const url = folderId
@@ -55,19 +53,16 @@ const Dashboard = () => {
       setImages([]);
     }
   };
-  // Handle folder navigation
+
   const navigateToFolder = async (folder) => {
     if (!folder || !folder._id) return;
 
     const newPath = [...currentPath];
-    // Check if we're navigating to a folder that's already in our path
     const existingIndex = newPath.findIndex((f) => f._id === folder._id);
 
     if (existingIndex >= 0) {
-      // If clicking a folder that's already in our path, truncate to that point
       setCurrentPath(newPath.slice(0, existingIndex + 1));
     } else {
-      // Otherwise add to path
       newPath.push(folder);
       setCurrentPath(newPath);
     }
@@ -77,7 +72,43 @@ const Dashboard = () => {
     await loadImages(folder._id);
   };
 
-  // Handle going back to parent folder via breadcrumb
+  const handleNavigateFromSearch = async (imageData) => {
+    console.log("handleNavigateFromSearch called with:", imageData);
+
+    try {
+      const folderId =
+        imageData.folderId || imageData.folder || imageData.folderPath;
+      console.log("Extracted folder ID:", folderId);
+
+      if (!folderId || folderId === "root" || folderId === "") {
+        console.log("Navigating to root folder");
+        await navigateToRoot();
+        return;
+      }
+
+      console.log("Fetching folder details for ID:", folderId);
+
+      let targetFolder = folders.find((f) => f._id === folderId);
+
+      if (!targetFolder) {
+        const response = await axios.get(`${API_URL}/api/folders/${folderId}`);
+        targetFolder = response.data;
+        console.log("Fetched folder from API:", targetFolder);
+      }
+
+      if (targetFolder) {
+        await navigateToFolder(targetFolder);
+        console.log("Successfully navigated to folder:", targetFolder.name);
+      } else {
+        console.warn("Could not find folder with ID:", folderId);
+        toast.error("Could not find the folder containing this image");
+      }
+    } catch (error) {
+      console.error("Error navigating to folder from search:", error);
+      toast.error("Failed to navigate to folder");
+    }
+  };
+
   const handleBreadcrumbClick = async (index) => {
     const newPath = currentPath.slice(0, index + 1);
     setCurrentPath(newPath);
@@ -89,7 +120,6 @@ const Dashboard = () => {
     await loadImages(folder?._id);
   };
 
-  // Handle going to root
   const navigateToRoot = async () => {
     setCurrentFolder(null);
     setCurrentPath([]);
@@ -97,7 +127,6 @@ const Dashboard = () => {
     await loadImages(null);
   };
 
-  // Handle folder creation
   const handleCreateFolder = async (name) => {
     try {
       await axios.post(`${API_URL}/api/folders`, {
@@ -114,7 +143,6 @@ const Dashboard = () => {
     }
   };
 
-  // Handle image upload
   const handleImageUpload = async (name, file) => {
     try {
       const formData = new FormData();
@@ -137,7 +165,6 @@ const Dashboard = () => {
     }
   };
 
-  // Handle search
   const handleSearch = async (query) => {
     setSearchQuery(query);
     if (!query.trim()) {
@@ -161,12 +188,10 @@ const Dashboard = () => {
     }
   };
 
-  // Handle opening an image (view in modal or new tab)
   const handleOpenImage = (image) => {
     window.open(image.cloudinaryUrl, "_blank");
   };
 
-  // Load initial data on component mount
   useEffect(() => {
     loadFolders();
     loadImages();
@@ -183,6 +208,7 @@ const Dashboard = () => {
         viewMode={viewMode}
         onViewModeChange={setViewMode}
         onImageClick={handleOpenImage}
+        onNavigateToFolder={handleNavigateFromSearch} 
       />
 
       <div className="mx-auto px-4 sm:px-6 lg:px-8 max-w-7xl">
@@ -232,7 +258,6 @@ const Dashboard = () => {
         />
       </div>
 
-      {/* Modals remain the same */}
       {showCreateFolderModal && (
         <CreateFolderModal
           onClose={() => setShowCreateFolderModal(false)}

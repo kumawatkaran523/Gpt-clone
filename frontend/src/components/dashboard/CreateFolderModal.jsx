@@ -28,7 +28,7 @@ const CreateFolderModal = ({ onClose, onSubmit }) => {
     try {
       await onSubmit(name.trim());
     } catch (error) {
-      // Error handling is done in parent component
+      console.log(error);
     } finally {
       setLoading(false);
     }
@@ -44,7 +44,6 @@ const CreateFolderModal = ({ onClose, onSubmit }) => {
   return (
     <div className="fixed inset-0 bg-black/80 bg-opacity-50 flex items-center justify-center p-4 z-50">
       <div className="bg-white rounded-md shadow-lg w-full max-w-md">
-        {/* Header */}
         <div className="flex items-center justify-between p-4 border-b border-gray-200">
           <div className="flex items-center space-x-2">
             <Folder className="h-5 w-5 text-gray-700" />
@@ -60,7 +59,6 @@ const CreateFolderModal = ({ onClose, onSubmit }) => {
           </button>
         </div>
 
-        {/* Content */}
         <div className="p-4">
           <form onSubmit={handleSubmit} className="space-y-4">
             <div>
@@ -90,7 +88,6 @@ const CreateFolderModal = ({ onClose, onSubmit }) => {
               </p>
             </div>
 
-            {/* Info Box */}
             <div className="bg-gray-50 border border-gray-200 rounded-md p-3">
               <div className="flex items-start space-x-3">
                 <Folder className="h-4 w-4 text-gray-600 mt-0.5 flex-shrink-0" />
@@ -106,7 +103,6 @@ const CreateFolderModal = ({ onClose, onSubmit }) => {
               </div>
             </div>
 
-            {/* Action Buttons */}
             <div className="flex justify-end space-x-3 pt-2">
               <button
                 type="button"

@@ -11,14 +11,12 @@ const UploadModal = ({ onClose, onSubmit, currentFolder }) => {
   const handleFileChange = (e) => {
     const selectedFile = e.target.files[0];
     if (selectedFile) {
-      // Validate file type
       const allowedTypes = ["image/jpeg", "image/png", "image/gif"];
       if (!allowedTypes.includes(selectedFile.type)) {
         setErrors({ file: "Only JPEG, PNG and GIF images are allowed" });
         return;
       }
 
-      // Validate file size (5MB)
       if (selectedFile.size > 5 * 1024 * 1024) {
         setErrors({ file: "File size must be less than 5MB" });
         return;
@@ -27,14 +25,12 @@ const UploadModal = ({ onClose, onSubmit, currentFolder }) => {
       setFile(selectedFile);
       setErrors({});
 
-      // Create preview
       const reader = new FileReader();
       reader.onloadend = () => {
         setPreview(reader.result);
       };
       reader.readAsDataURL(selectedFile);
 
-      // Auto-fill name if empty
       if (!name) {
         const fileName = selectedFile.name.replace(/\.[^/.]+$/, "");
         setName(fileName);
@@ -68,7 +64,6 @@ const UploadModal = ({ onClose, onSubmit, currentFolder }) => {
     try {
       await onSubmit(name.trim(), file);
     } catch (error) {
-      // Error handling is done in parent component
     } finally {
       setLoading(false);
     }
@@ -94,7 +89,6 @@ const UploadModal = ({ onClose, onSubmit, currentFolder }) => {
   return (
     <div className="fixed inset-0 bg-black/80 bg-opacity-50 flex items-center justify-center p-4 z-50">
       <div className="bg-white rounded-md shadow-lg w-full max-w-md">
-        {/* Header */}
         <div className="flex items-center justify-between p-4 border-b border-gray-200">
           <h2 className="text-lg font-medium text-gray-900">Upload Image</h2>
           <button
@@ -105,7 +99,6 @@ const UploadModal = ({ onClose, onSubmit, currentFolder }) => {
           </button>
         </div>
 
-        {/* Content */}
         <div className="p-4">
           <p className="text-sm text-gray-600 mb-4">
             Uploading to:{" "}
@@ -115,7 +108,6 @@ const UploadModal = ({ onClose, onSubmit, currentFolder }) => {
           </p>
 
           <form onSubmit={handleSubmit} className="space-y-4">
-            {/* File Upload Area */}
             <div>
               <label className="block text-sm font-medium text-gray-700 mb-2">
                 Select Image
@@ -183,7 +175,6 @@ const UploadModal = ({ onClose, onSubmit, currentFolder }) => {
               )}
             </div>
 
-            {/* Image Name */}
             <div>
               <label
                 htmlFor="imageName"
@@ -215,7 +206,6 @@ const UploadModal = ({ onClose, onSubmit, currentFolder }) => {
               </p>
             </div>
 
-            {/* Action Buttons */}
             <div className="flex justify-end space-x-3 pt-2">
               <button
                 type="button"

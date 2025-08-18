@@ -25,7 +25,6 @@ const ImageModal = ({ image, onClose, onDelete }) => {
   return (
     <div className="fixed inset-0 bg-black/60 flex items-center justify-center z-50 p-4">
       <div className="bg-white rounded-lg shadow-xl overflow-hidden flex flex-col w-full max-w-4xl max-h-[90vh]">
-        {/* Header */}
         <div className="flex justify-between items-center p-4 border-b">
           <h2 className="text-lg font-medium">{image.name}</h2>
           <button
@@ -36,7 +35,6 @@ const ImageModal = ({ image, onClose, onDelete }) => {
           </button>
         </div>
 
-        {/* Image Content */}
         <div className="flex-1 overflow-auto p-4 flex items-center justify-center bg-gray-50">
           <img
             src={image.cloudinaryUrl}
@@ -49,7 +47,6 @@ const ImageModal = ({ image, onClose, onDelete }) => {
           />
         </div>
 
-        {/* Footer Controls */}
         <div className="p-4 border-t flex items-center justify-between bg-white">
           <div className="flex items-center space-x-4">
             <button

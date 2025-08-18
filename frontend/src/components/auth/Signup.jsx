@@ -59,10 +59,25 @@ const Signup = () => {
   return (
     <div className="min-h-screen bg-gray-50 flex items-center justify-center p-4">
       <div className="w-full max-w-md bg-white rounded-lg shadow-sm border border-gray-200 p-8">
-        {/* Header */}
-        <div className="text-center mb-8">
-          <div className="mx-auto w-16 h-16 bg-gray-800 rounded-full flex items-center justify-center mb-4">
-            <ImageIcon className="h-7 w-7 text-white" />
+        <div className="flex flex-col items-center mb-8">
+          <div className="relative mb-4">
+            <div className="w-12 h-12 bg-gradient-to-br from-blue-500 to-purple-600 rounded-xl flex items-center justify-center shadow-lg transform rotate-3">
+              <svg
+                xmlns="http://www.w3.org/2000/svg"
+                viewBox="0 0 24 24"
+                fill="none"
+                stroke="currentColor"
+                strokeWidth="2"
+                strokeLinecap="round"
+                strokeLinejoin="round"
+                className="w-6 h-6 text-white"
+              >
+                <rect x="3" y="3" width="18" height="18" rx="2" ry="2" />
+                <circle cx="8.5" cy="8.5" r="1.5" />
+                <path d="M21 15l-3.5-3.5L12 18l-3.5-3.5L3 15" />
+              </svg>
+              <div className="absolute -bottom-1 -right-1 w-4 h-4 bg-emerald-400 rounded-full border-2 border-white"></div>
+            </div>
           </div>
           <h1 className="text-2xl font-semibold text-gray-800 mb-2">
             Create Account
@@ -78,9 +93,7 @@ const Signup = () => {
           </p>
         </div>
 
-        {/* Form */}
         <form className="space-y-4" onSubmit={handleSubmit}>
-          {/* Name Field */}
           <div>
             <label
               htmlFor="name"
@@ -104,7 +117,6 @@ const Signup = () => {
             )}
           </div>
 
-          {/* Email Field */}
           <div>
             <label
               htmlFor="email"
@@ -128,7 +140,6 @@ const Signup = () => {
             )}
           </div>
 
-          {/* Password Field */}
           <div>
             <label
               htmlFor="password"
@@ -165,7 +176,6 @@ const Signup = () => {
             )}
           </div>
 
-          {/* Confirm Password Field */}
           <div>
             <label
               htmlFor="confirmPassword"
@@ -204,7 +214,6 @@ const Signup = () => {
             )}
           </div>
 
-          {/* Submit Button */}
           <div className="pt-2">
             <button
               type="submit"

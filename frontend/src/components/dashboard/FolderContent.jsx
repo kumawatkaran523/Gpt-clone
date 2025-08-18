@@ -9,7 +9,7 @@ import {
   Eye,
 } from "lucide-react";
 import { useState, useRef, useEffect } from "react";
-import ImageModal from "./ImageModal"; // You'll need to create this component
+import ImageModal from "./ImageModal"; 
 
 const FolderContent = ({
   currentFolder,
@@ -46,14 +46,6 @@ const FolderContent = ({
       document.removeEventListener("mousedown", handleClickOutside);
     };
   }, []);
-
-  const formatFileSize = (bytes) => {
-    if (bytes === 0) return "0 Bytes";
-    const k = 1024;
-    const sizes = ["Bytes", "KB", "MB", "GB"];
-    const i = Math.floor(Math.log(bytes) / Math.log(k));
-    return parseFloat((bytes / Math.pow(k, i)).toFixed(2)) + " " + sizes[i];
-  };
 
   const formatDate = (dateString) => {
     return new Date(dateString).toLocaleDateString("en-US", {
@@ -96,7 +88,6 @@ const FolderContent = ({
 
   return (
     <div className="py-6 space-y-6">
-      {/* Breadcrumb Navigation */}
       <nav className="flex items-center space-x-2 text-sm text-gray-700">
         <button
           onClick={onRootClick}
@@ -119,7 +110,6 @@ const FolderContent = ({
         ))}
       </nav>
 
-      {/* Header */}
       <div className="flex items-center justify-between border-b border-gray-200 pb-4">
         <div>
           <h2 className="text-xl font-semibold text-gray-900">
@@ -151,7 +141,6 @@ const FolderContent = ({
         </div>
       </div>
 
-      {/* Content Area */}
       <div className="space-y-6">
         {loading ? (
           <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4">
@@ -313,7 +302,6 @@ const FolderContent = ({
         )}
       </div>
 
-      {/* Image Preview Modal */}
       {selectedImage && (
         <ImageModal
           image={selectedImage}

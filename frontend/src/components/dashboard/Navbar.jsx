@@ -3,8 +3,6 @@ import {
   Search,
   User,
   LogOut,
-  Grid,
-  List,
   X,
   Image as ImageIcon,
   Folder,
@@ -17,9 +15,8 @@ const Navbar = ({
   searchQuery,
   searchResults = [],
   isSearching,
-  viewMode,
-  onViewModeChange,
-  onNavigateToFolder, // Add this new prop
+  onNavigateToFolder,
+  onImageClick,
 }) => {
   const { logout } = useAuth();
   const [showUserMenu, setShowUserMenu] = useState(false);
@@ -28,7 +25,6 @@ const Navbar = ({
   const searchRef = useRef(null);
   const resultsRef = useRef(null);
 
-  // Handle search input
   useEffect(() => {
     const delayedSearch = setTimeout(() => {
       if (localSearchQuery !== searchQuery) {
@@ -39,7 +35,6 @@ const Navbar = ({
     return () => clearTimeout(delayedSearch);
   }, [localSearchQuery, searchQuery, onSearch]);
 
-  // Show/hide search results
   useEffect(() => {
     setShowSearchResults(
       (searchQuery.length > 0 && (searchResults.length > 0 || isSearching)) ||
@@ -47,7 +42,6 @@ const Navbar = ({
     );
   }, [searchQuery, searchResults, isSearching, localSearchQuery]);
 
-  // Handle click outside to close dropdowns
   useEffect(() => {
     const handleClickOutside = (event) => {
       if (searchRef.current && !searchRef.current.contains(event.target)) {
@@ -73,21 +67,26 @@ const Navbar = ({
     setShowSearchResults(false);
   };
 
-  const handleImageResultClick = (image) => {
-    if (onNavigateToFolder) {
-      // Check if we have a folder path or ID
-      const folderPath = image.folderPath || image.folderId;
+  const handleImageResultClick = (image, event) => {
+    console.log("Image result clicked:", image);
 
-      if (folderPath) {
-        console.log("Navigating to folder:", folderPath); // Debug log
-        onNavigateToFolder(folderPath);
+    const clickedElement = event.target.closest("[data-action]");
+    const action = clickedElement?.getAttribute("data-action");
+
+    if (action === "navigate-to-folder") {
+      console.log("Navigating to folder for image:", image);
+      if (onNavigateToFolder) {
+        onNavigateToFolder(image);
       } else {
-        console.warn("No folder information found for this image:", image);
-        // Fallback: You might want to show a toast/notification here
+        console.error("onNavigateToFolder prop is not provided");
       }
     } else {
-      console.error("onNavigateToFolder prop is not provided");
+      console.log("Opening image:", image);
+      if (onImageClick) {
+        onImageClick(image);
+      }
     }
+
     setShowSearchResults(false);
   };
 
@@ -103,14 +102,36 @@ const Navbar = ({
     <nav className="bg-white border-b border-gray-200 sticky top-0 z-40">
       <div className="mx-auto px-4 sm:px-6 lg:px-8 max-w-7xl">
         <div className="flex items-center justify-between h-16">
-          {/* Logo */}
-          <div className="flex items-center">
-            <h1 className="text-lg font-semibold text-gray-900">
-              Image Manager
-            </h1>
+          <div className="flex items-center space-x-3">
+            <div className="relative">
+              <div className="w-12 h-12 bg-gradient-to-br from-blue-500 to-purple-600 rounded-xl flex items-center justify-center shadow-lg transform rotate-3 hover:rotate-0 transition-transform">
+                <svg
+                  xmlns="http://www.w3.org/2000/svg"
+                  viewBox="0 0 24 24"
+                  fill="none"
+                  stroke="currentColor"
+                  strokeWidth="2"
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                  className="w-6 h-6 text-white"
+                >
+                  <rect x="3" y="3" width="18" height="18" rx="2" ry="2" />
+                  <circle cx="8.5" cy="8.5" r="1.5" />
+                  <path d="M21 15l-3.5-3.5L12 18l-3.5-3.5L3 15" />
+                </svg>
+              </div>
+              <div className="absolute -bottom-1 -right-1 w-4 h-4 bg-emerald-400 rounded-full border-2 border-white"></div>
+            </div>
+            <div>
+              <h1 className="text-xl font-bold bg-gradient-to-r from-blue-600 to-purple-600 bg-clip-text text-transparent">
+                PicStore
+              </h1>
+              <p className="text-xs text-gray-500 -mt-1">
+                Visual Asset Manager
+              </p>
+            </div>
           </div>
 
-          {/* Search */}
           <div className="flex-1 max-w-2xl mx-4 relative" ref={searchRef}>
             <form onSubmit={handleSearchSubmit} className="relative">
               <div className="relative">
@@ -137,7 +158,6 @@ const Navbar = ({
               </div>
             </form>
 
-            {/* Search Results Dropdown */}
             {showSearchResults && (
               <div
                 ref={resultsRef}
@@ -155,42 +175,51 @@ const Navbar = ({
                       {searchResults.length !== 1 ? "s" : ""} found
                     </div>
                     {searchResults.map((image) => (
-                      <button
+                      <div
                         key={image._id}
-                        onClick={() => handleImageResultClick(image)}
-                        className="w-full flex items-center space-x-3 px-3 py-3 hover:bg-gray-50 transition-colors text-left"
+                        className="flex items-center space-x-3 px-3 py-3 hover:bg-gray-50 transition-colors"
                       >
-                        <div className="flex-shrink-0">
-                          <div className="h-10 w-10 bg-gray-100 rounded-md overflow-hidden">
-                            <img
-                              src={image.cloudinaryUrl}
-                              alt={image.name}
-                              className="w-full h-full object-cover"
-                            />
+                        <button
+                          onClick={(e) => handleImageResultClick(image, e)}
+                          className="flex items-center space-x-3 flex-1 text-left"
+                        >
+                          <div className="flex-shrink-0">
+                            <div className="h-10 w-10 bg-gray-100 rounded-md overflow-hidden">
+                              <img
+                                src={image.cloudinaryUrl}
+                                alt={image.name}
+                                className="w-full h-full object-cover"
+                              />
+                            </div>
                           </div>
-                        </div>
-                        <div className="flex-1 min-w-0">
-                          <p className="text-sm font-medium text-gray-900 truncate">
-                            {image.name}
-                          </p>
-                          <div className="flex items-center space-x-2 text-xs text-gray-500">
-                            <span>{formatFileSize(image.size)}</span>
-                            <span>•</span>
-                            <span className="capitalize">
-                              {image.mimetype?.split("/")[1] || "Unknown"}
-                            </span>
-                            {image.folderName && (
-                              <>
-                                <span>•</span>
-                                <span className="flex items-center">
-                                  <Folder className="h-3 w-3 mr-1" />
-                                  {image.folderName}
-                                </span>
-                              </>
-                            )}
+                          <div className="flex-1 min-w-0">
+                            <p className="text-sm font-medium text-gray-900 truncate">
+                              {image.name}
+                            </p>
+                            <div className="flex items-center space-x-2 text-xs text-gray-500">
+                              <span>{formatFileSize(image.size)}</span>
+                              <span>•</span>
+                              <span className="capitalize">
+                                {image.mimetype?.split("/")[1] || "Unknown"}
+                              </span>
+                            </div>
                           </div>
-                        </div>
-                      </button>
+                        </button>
+
+                        {(image.folderName || image.folderId) && (
+                          <button
+                            onClick={(e) => handleImageResultClick(image, e)}
+                            data-action="navigate-to-folder"
+                            className="flex items-center space-x-1 px-2 py-1 text-xs text-blue-600 hover:text-blue-800 hover:bg-blue-50 rounded transition-colors"
+                            title={`Go to folder: ${
+                              image.folderName || "Folder"
+                            }`}
+                          >
+                            <Folder className="h-3 w-3" />
+                            <span>{image.folderName || "Go to folder"}</span>
+                          </button>
+                        )}
+                      </div>
                     ))}
                   </div>
                 ) : searchQuery.length > 0 ? (
@@ -205,9 +234,7 @@ const Navbar = ({
             )}
           </div>
 
-          {/* Right side controls */}
           <div className="flex items-center space-x-4">
-            {/* User Menu */}
             <div className="relative user-menu">
               <button
                 onClick={() => setShowUserMenu(!showUserMenu)}
@@ -238,8 +265,8 @@ const Navbar = ({
                     }}
                     className="flex items-center space-x-2 w-full px-4 py-2 text-sm text-gray-700 hover:bg-gray-50 transition-colors"
                   >
-                    <LogOut className="h-4 w-4 text-gray-500" />
-                    <span>Sign out</span>
+                    <LogOut className="h-4 w-4 text-red-500" />
+                    <span className="text-red-500">Sign out</span>
                   </button>
                 </div>
               )}

@@ -18,14 +18,12 @@ export const AuthProvider = ({ children }) => {
   const [user, setUser] = useState(null);
   const [loading, setLoading] = useState(true);
 
-  // Set up axios interceptor for auth token
   useEffect(() => {
     const token = localStorage.getItem("token");
     if (token) {
       axios.defaults.headers.common["Authorization"] = `Bearer ${token}`;
     }
 
-    // Response interceptor to handle token expiration
     const responseInterceptor = axios.interceptors.response.use(
       (response) => response,
       (error) => {
@@ -42,7 +40,6 @@ export const AuthProvider = ({ children }) => {
     };
   }, []);
 
-  // Check if user is logged in on app start
   useEffect(() => {
     const checkAuth = async () => {
       const token = localStorage.getItem("token");
