@@ -1,4 +1,4 @@
-import { X, Trash2, Download, ZoomIn, ZoomOut, RotateCw } from "lucide-react";
+import { X, Download, ZoomIn, ZoomOut, RotateCw } from "lucide-react";
 import { useState } from "react";
 
 const ImageModal = ({ image, onClose, onDelete }) => {
@@ -95,19 +95,7 @@ const ImageModal = ({ image, onClose, onDelete }) => {
             >
               <Download className="h-5 w-5" />
             </button>
-            <button
-              onClick={() => {
-                if (
-                  window.confirm("Are you sure you want to delete this image?")
-                ) {
-                  onDelete(image._id);
-                }
-              }}
-              className="p-2 text-red-600 hover:bg-red-50 rounded"
-              title="Delete"
-            >
-              <Trash2 className="h-5 w-5" />
-            </button>
+           
           </div>
         </div>
       </div>

@@ -7,6 +7,7 @@ import {
   List,
   X,
   Image as ImageIcon,
+  Folder,
 } from "lucide-react";
 import { useAuth } from "../../context/AuthContext";
 
@@ -18,7 +19,7 @@ const Navbar = ({
   isSearching,
   viewMode,
   onViewModeChange,
-  onImageClick,
+  onNavigateToFolder, // Add this new prop
 }) => {
   const { logout } = useAuth();
   const [showUserMenu, setShowUserMenu] = useState(false);
@@ -73,7 +74,20 @@ const Navbar = ({
   };
 
   const handleImageResultClick = (image) => {
-    onImageClick(image);
+    if (onNavigateToFolder) {
+      // Check if we have a folder path or ID
+      const folderPath = image.folderPath || image.folderId;
+
+      if (folderPath) {
+        console.log("Navigating to folder:", folderPath); // Debug log
+        onNavigateToFolder(folderPath);
+      } else {
+        console.warn("No folder information found for this image:", image);
+        // Fallback: You might want to show a toast/notification here
+      }
+    } else {
+      console.error("onNavigateToFolder prop is not provided");
+    }
     setShowSearchResults(false);
   };
 
@@ -165,6 +179,15 @@ const Navbar = ({
                             <span className="capitalize">
                               {image.mimetype?.split("/")[1] || "Unknown"}
                             </span>
+                            {image.folderName && (
+                              <>
+                                <span>•</span>
+                                <span className="flex items-center">
+                                  <Folder className="h-3 w-3 mr-1" />
+                                  {image.folderName}
+                                </span>
+                              </>
+                            )}
                           </div>
                         </div>
                       </button>
